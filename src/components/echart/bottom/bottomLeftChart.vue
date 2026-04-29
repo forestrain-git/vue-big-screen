@@ -6,130 +6,26 @@
 
 <script>
 const echarts = require("echarts");
+import { getYears, getRevenueArray, getCostArray, getProfitArray, getMarginArray } from "@/data/financialData";
+
 export default {
   data() {
     return {};
   },
   mounted() {
-    this.drawPie();
+    setTimeout(() => this.drawChart(), 1000);
   },
   methods: {
-    drawPie() {
-      // 基于准备好的dom，初始化echarts实例
-      let myChartPieLeft = echarts.init(
+    drawChart() {
+      let myChart = echarts.init(
         document.getElementById("bottomLeftChart")
       );
-      //  ----------------------------------------------------------------
-      let category = [
-        "市区",
-        "万州",
-        "江北",
-        "南岸",
-        "北碚",
-        "綦南",
-        "长寿",
-        "永川",
-        "璧山",
-        "江津",
-        "城口",
-        "大足",
-        "垫江",
-        "丰都",
-        "奉节",
-        "合川",
-        "江津区",
-        "开州",
-        "南川",
-        "彭水",
-        "黔江",
-        "石柱",
-        "铜梁",
-        "潼南",
-        "巫山",
-        "巫溪",
-        "武隆",
-        "秀山",
-        "酉阳",
-        "云阳",
-        "忠县",
-        "川东",
-        "检修"
-      ];
-      let lineData = [
-        18092,
-        20728,
-        24045,
-        28348,
-        32808,
-        36097,
-        39867,
-        44715,
-        48444,
-        50415,
-        56061,
-        62677,
-        59521,
-        67560,
-        18092,
-        20728,
-        24045,
-        28348,
-        32808,
-        36097,
-        39867,
-        44715,
-        48444,
-        50415,
-        36097,
-        39867,
-        44715,
-        48444,
-        50415,
-        50061,
-        32677,
-        49521,
-        32808
-      ];
-      let barData = [
-        4600,
-        5000,
-        5500,
-        6500,
-        7500,
-        8500,
-        9900,
-        12500,
-        14000,
-        21500,
-        23200,
-        24450,
-        25250,
-        33300,
-        4600,
-        5000,
-        5500,
-        6500,
-        7500,
-        8500,
-        9900,
-        22500,
-        14000,
-        21500,
-        8500,
-        9900,
-        12500,
-        14000,
-        21500,
-        23200,
-        24450,
-        25250,
-        7500
-      ];
-      let rateData = [];
-      for (let i = 0; i < 33; i++) {
-        let rate = barData[i] / lineData[i];
-        rateData[i] = rate.toFixed(2);
-      }
+
+      const years = getYears().map(y => y + "年");
+      const revenue = getRevenueArray().map(v => Math.round(v));
+      const cost = getCostArray().map(v => Math.round(v));
+      const profit = getProfitArray().map(v => Math.round(v));
+      const margin = getMarginArray().map(v => v);
 
       let option = {
         title: {
@@ -151,10 +47,20 @@ export default {
               show: true,
               backgroundColor: "#7B7DDC"
             }
+          },
+          formatter: function(params) {
+            let result = params[0].name + '<br/>';
+            params.forEach(p => {
+              result += p.marker + p.seriesName + ': ' + p.value;
+              if (p.seriesName === '毛利率') result += '%';
+              else result += '万元';
+              result += '<br/>';
+            });
+            return result;
           }
         },
         legend: {
-          data: ["已贯通", "计划贯通", "贯通率"],
+          data: ["收入", "成本", "毛利", "毛利率"],
           textStyle: {
             color: "#B4B4B4"
           },
@@ -166,7 +72,7 @@ export default {
           y: "4%"
         },
         xAxis: {
-          data: category,
+          data: years,
           axisLine: {
             lineStyle: {
               color: "#B4B4B4"
@@ -184,9 +90,8 @@ export default {
                 color: "#B4B4B4"
               }
             },
-
             axisLabel: {
-              formatter: "{value} "
+              formatter: "{value}"
             }
           },
           {
@@ -197,13 +102,13 @@ export default {
               }
             },
             axisLabel: {
-              formatter: "{value} "
+              formatter: "{value}%"
             }
           }
         ],
         series: [
           {
-            name: "贯通率",
+            name: "毛利率",
             type: "line",
             smooth: true,
             showAllSymbol: true,
@@ -215,11 +120,10 @@ export default {
                 color: "#F02FC2"
               }
             },
-            data: rateData
+            data: margin
           },
-
           {
-            name: "已贯通",
+            name: "收入",
             type: "bar",
             barWidth: 10,
             itemStyle: {
@@ -231,11 +135,10 @@ export default {
                 ])
               }
             },
-            data: barData
+            data: revenue
           },
-
           {
-            name: "计划贯通",
+            name: "成本",
             type: "bar",
             barGap: "-100%",
             barWidth: 10,
@@ -250,15 +153,27 @@ export default {
               }
             },
             z: -12,
-
-            data: lineData
+            data: cost
+          },
+          {
+            name: "毛利",
+            type: "bar",
+            barWidth: 10,
+            itemStyle: {
+              normal: {
+                barBorderRadius: 5,
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: "#43dfa2" },
+                  { offset: 1, color: "#28f8de" }
+                ])
+              }
+            },
+            data: profit
           }
         ]
       };
-      myChartPieLeft.setOption(option);
-      // -----------------------------------------------------------------
-      // 响应式变化
-      window.addEventListener("resize", () => myChartPieLeft.resize(), false);
+      myChart.setOption(option);
+      window.addEventListener("resize", () => myChart.resize(), false);
     }
   },
   destroyed() {

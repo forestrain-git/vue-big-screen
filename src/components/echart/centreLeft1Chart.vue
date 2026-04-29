@@ -6,20 +6,26 @@
 
 <script>
 const echarts = require("echarts");
+import { segmentCumulative } from "@/data/financialData";
+
 export default {
   data() {
     return {};
   },
   mounted() {
-    this.drawPie();
+    setTimeout(() => this.drawPie(), 1000);
   },
   methods: {
     drawPie(sidebar) {
-      // 基于准备好的dom，初始化echarts实例
       let myChartPieLeft = echarts.init(
         document.getElementById("centreLeft1Chart")
       );
-      //  ----------------------------------------------------------------
+
+      const segments = Object.keys(segmentCumulative);
+      const pieData = segments.map(seg => ({
+        name: seg,
+        value: Math.round(segmentCumulative[seg].revenue)
+      }));
 
       myChartPieLeft.setOption({
         color: [
@@ -34,7 +40,7 @@ export default {
         ],
         tooltip: {
           trigger: "item",
-          formatter: "{a} <br/>{b} : {c} ({d}%)"
+          formatter: "{a} <br/>{b} : {c}万元 ({d}%)"
         },
         toolbox: {
           show: true
@@ -45,33 +51,24 @@ export default {
           icon: "circle",
           bottom: 0,
           x: "center",
-          data: ["rose1", "rose2", "rose3", "rose4", "rose5", "rose6"],
+          data: segments,
           textStyle: {
-            color: "#fff"
+            color: "#fff",
+            fontSize: 10
           }
         },
         series: [
           {
-            name: "增值电信业务统计表",
+            name: "板块累计收入",
             type: "pie",
             radius: [10, 60],
             roseType: "area",
             center: ["50%", "40%"],
-            data: [
-              { value: 10, name: "rose1" },
-              { value: 5, name: "rose2" },
-              { value: 15, name: "rose3" },
-              { value: 25, name: "rose4" },
-              { value: 20, name: "rose5" },
-              { value: 35, name: "rose6" }
-            ]
+            data: pieData
           }
         ]
       });
-      // -----------------------------------------------------------------
-      // 响应式变化
       window.addEventListener("resize", () => myChartPieLeft.resize(), false);
-      //侧边栏变化
       if (sidebar) {
         myChartPieLeft.resize();
       }

@@ -5,7 +5,7 @@
         <span style="color:#5cd9e8">
           <icon name="align-left"></icon>
         </span>
-        <span class="fs-xl text mx-2">产品销售渠道分析</span>
+        <span class="fs-xl text mx-2">板块毛利率对比</span>
       </div>
       <div class="d-flex jc-center body-box">
         <dv-capsule-chart :config="config" style="width: 100%;height:160px" />
@@ -18,33 +18,20 @@
 
 <script>
 import centreRight2Chart1 from "@/components/echart/centreRight2/centreRight2Chart1";
+import { segmentCumulative } from "@/data/financialData";
 
 export default {
   data() {
+    const capsuleData = Object.keys(segmentCumulative)
+      .filter(seg => segmentCumulative[seg].margin > 0)
+      .map(seg => ({
+        name: seg,
+        value: Math.round(segmentCumulative[seg].margin)
+      }));
+
     return {
       config: {
-        data: [
-          {
-            name: "南阳",
-            value: 167
-          },
-          {
-            name: "周口",
-            value: 67
-          },
-          {
-            name: "漯河",
-            value: 123
-          },
-          {
-            name: "郑州",
-            value: 55
-          },
-          {
-            name: "西峡",
-            value: 98
-          }
-        ]
+        data: capsuleData
       }
     };
   },

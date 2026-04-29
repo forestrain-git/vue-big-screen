@@ -6,6 +6,8 @@
 
 <script>
 const echarts = require("echarts");
+import { totalCumulative } from "@/data/financialData";
+
 export default {
   data() {
     return {};
@@ -15,12 +17,11 @@ export default {
   },
   methods: {
     drawPie() {
-      // 基于准备好的dom，初始化echarts实例
       let myChartPieLeft = echarts.init(
         document.getElementById("centerChart2")
       );
-      //  ----------------------------------------------------------------
-      let tips = 40;
+      // 回款率 = 回款 / 收入
+      let tips = Math.round(totalCumulative.collection / totalCumulative.revenue * 100);
       let option = {
         title: [
           {
@@ -64,8 +65,6 @@ export default {
         ]
       };
       myChartPieLeft.setOption(option);
-      // -----------------------------------------------------------------
-      // 响应式变化
       window.addEventListener("resize", () => myChartPieLeft.resize(), false);
     }
   },

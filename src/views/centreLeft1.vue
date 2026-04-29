@@ -6,7 +6,7 @@
           <icon name="chart-bar"></icon>
         </span>
         <div class="d-flex">
-          <span class="fs-xl text mx-2">任务通过率</span>
+          <span class="fs-xl text mx-2">板块收入占比</span>
           <dv-decoration-3 style="width:100px;height:20px; position:relative;top:-3px;" />
         </div>
       </div>
@@ -22,7 +22,7 @@
           </div>
           <p class="text" style="text-align: center;">
             {{item.text}}
-            <span class="colorYellow">(件)</span>
+            <span class="colorYellow">(万元)</span>
           </p>
         </div>
       </div>
@@ -32,69 +32,45 @@
 
 <script>
 import centreLeft1Chart from "@/components/echart/centreLeft1Chart";
+import { yearlyData } from "@/data/financialData";
+
 export default {
   data() {
+    const years = Object.keys(yearlyData);
+    const latest = yearlyData[years[years.length - 1]];
     return {
-      config: {
-        lineWidth: 30,
-        activeRadius: "80%",
-        radius: "75%",
-        activeTimeGap: 2000,
-        data: [
-          {
-            name: "周口",
-            value: 55
-          },
-          {
-            name: "南阳",
-            value: 120
-          },
-          {
-            name: "西峡",
-            value: 78
-          },
-          {
-            name: "驻马店",
-            value: 66
-          },
-          {
-            name: "新乡",
-            value: 80
-          }
-        ]
-      },
       numberData: [
         {
           number: {
-            number: [15],
-            toFixed: 1,
+            number: [latest.revenue],
+            toFixed: 0,
             content: "{nt}"
           },
-          text: "今日构建总量"
+          text: "2025年收入"
         },
         {
           number: {
-            number: [1144],
-            toFixed: 1,
+            number: [latest.cost],
+            toFixed: 0,
             content: "{nt}"
           },
-          text: "总共完成数量"
+          text: "2025年成本"
         },
         {
           number: {
-            number: [361],
-            toFixed: 1,
+            number: [latest.profit],
+            toFixed: 0,
             content: "{nt}"
           },
-          text: "正在编译数量"
+          text: "2025年毛利"
         },
         {
           number: {
-            number: [157],
-            toFixed: 1,
+            number: [latest.collection],
+            toFixed: 0,
             content: "{nt}"
           },
-          text: "未通过数量"
+          text: "2025年回款"
         }
       ]
     };
@@ -102,22 +78,8 @@ export default {
   components: {
     centreLeft1Chart
   },
-  mounted() {
-    this.changeTiming();
-  },
-  methods: {
-    changeTiming() {
-      setInterval(() => {
-        this.changeNumber();
-      }, 3000);
-    },
-    changeNumber() {
-      this.numberData.forEach((item, index) => {
-        item.number.number[0] += ++index;
-        item.number = { ...item.number };
-      });
-    }
-  }
+  mounted() {},
+  methods: {}
 };
 </script>
 

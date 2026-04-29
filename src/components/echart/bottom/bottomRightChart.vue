@@ -6,88 +6,36 @@
 
 <script>
 const echarts = require("echarts");
+import { getYears, getCollectionArray, getPaymentArray, getProfitArray } from "@/data/financialData";
+
 export default {
   data() {
     return {};
   },
   mounted() {
-    this.drawPie();
-    this.charTimg();
+    this.drawChart();
   },
   methods: {
-    charTimg() {
-      setInterval(() => {
-        this.drawPie();
-      }, 6000);
-    },
-    drawPie() {
-      // 基于准备好的dom，初始化echarts实例
-      let myChartPieLeft = echarts.init(
+    drawChart() {
+      let myChart = echarts.init(
         document.getElementById("bottomRightChart")
       );
-      //  ----------------------------------------------------------------
-      // 数据
-      let dateBase = new Date();
-      let year = dateBase.getFullYear();
-      let dottedBase = +dateBase + 1000 * 3600 * 24;
-      let weekCategory = [];
 
-      let radarData = [];
-      let radarDataAvg = [];
-      let maxData = 12000;
-      let weekMaxData = [];
-      let weekLineData = [];
+      const years = getYears().map(y => y + "年");
+      const collection = getCollectionArray().map(v => Math.round(v));
+      const payment = getPaymentArray().map(v => Math.round(v));
+      const profit = getProfitArray().map(v => Math.round(v));
 
-      // 周数据
-      for (let i = 0; i < 7; i++) {
-        // 日期
-        var date = new Date((dottedBase -= 1000 * 3600 * 24));
-        weekCategory.unshift([date.getMonth() + 1, date.getDate()].join("/"));
-
-        // 折线图数据
-        weekMaxData.push(maxData);
-        var distance = Math.round(Math.random() * 11000 + 500);
-        weekLineData.push(distance);
-
-        // 雷达图数据
-        // 我的指标
-        var averageSpeed = +(Math.random() * 5 + 3).toFixed(3);
-        var maxSpeed = averageSpeed + +(Math.random() * 3).toFixed(2);
-        var hour = +(distance / 1000 / averageSpeed).toFixed(1);
-        var radarDayData = [distance, averageSpeed, maxSpeed, hour];
-        radarData.unshift(radarDayData);
-
-        // 平均指标
-        var distanceAvg = Math.round(Math.random() * 8000 + 4000);
-        var averageSpeedAvg = +(Math.random() * 4 + 4).toFixed(3);
-        var maxSpeedAvg = averageSpeedAvg + +(Math.random() * 2).toFixed(2);
-        var hourAvg = +(distance / 1000 / averageSpeed).toFixed(1);
-        var radarDayDataAvg = [
-          distanceAvg,
-          averageSpeedAvg,
-          maxSpeedAvg,
-          hourAvg
-        ];
-        radarDataAvg.unshift(radarDayDataAvg);
-      }
-
-      // 颜色设置
       let color = {
-        linearYtoG: {
+        linearBtoG: {
           type: "linear",
           x: 0,
           y: 0,
           x2: 1,
-          y2: 1,
+          y2: 0,
           colorStops: [
-            {
-              offset: 0,
-              color: "#f5b44d"
-            },
-            {
-              offset: 1,
-              color: "#28f8de"
-            }
+            { offset: 0, color: "#1c98e8" },
+            { offset: 1, color: "#28f8de" }
           ]
         },
         linearGtoB: {
@@ -97,31 +45,19 @@ export default {
           x2: 1,
           y2: 0,
           colorStops: [
-            {
-              offset: 0,
-              color: "#43dfa2"
-            },
-            {
-              offset: 1,
-              color: "#28f8de"
-            }
+            { offset: 0, color: "#43dfa2" },
+            { offset: 1, color: "#28f8de" }
           ]
         },
-        linearBtoG: {
+        linearYtoR: {
           type: "linear",
           x: 0,
           y: 0,
           x2: 1,
           y2: 0,
           colorStops: [
-            {
-              offset: 0,
-              color: "#1c98e8"
-            },
-            {
-              offset: 1,
-              color: "#28f8de"
-            }
+            { offset: 0, color: "#f5b44d" },
+            { offset: 1, color: "#ff6b6b" }
           ]
         },
         areaBtoG: {
@@ -131,102 +67,63 @@ export default {
           x2: 0,
           y2: 1,
           colorStops: [
-            {
-              offset: 0,
-              color: "rgba(35,184,210,.2)"
-            },
-            {
-              offset: 1,
-              color: "rgba(35,184,210,0)"
-            }
+            { offset: 0, color: "rgba(35,184,210,.2)" },
+            { offset: 1, color: "rgba(35,184,210,0)" }
+          ]
+        },
+        areaGtoY: {
+          type: "linear",
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: "rgba(248,211,81,.2)" },
+            { offset: 1, color: "rgba(248,211,81,0)" }
           ]
         }
       };
+
       let option = {
         title: {
-          text: "",
+          text: "回款 / 付款 / 毛利趋势",
           textStyle: {
             color: "#D3D6DD",
-            fontSize: 24,
+            fontSize: 16,
             fontWeight: "normal"
           },
-          subtext: year + "/" + weekCategory[6],
-          subtextStyle: {
-            color: "#fff",
-            fontSize: 16
-          },
-          top: 50,
+          top: 20,
           left: 80
         },
         legend: {
-          top: 120,
+          top: 60,
           left: 80,
           orient: "vertical",
           itemGap: 15,
           itemWidth: 12,
           itemHeight: 12,
-          data: ["平均指标", "我的指标"],
+          data: ["回款", "付款", "毛利"],
           textStyle: {
             color: "#fff",
             fontSize: 14
           }
         },
         tooltip: {
-          trigger: "item"
-        },
-        radar: {
-          center: ["68%", "27%"],
-          radius: "40%",
-          name: {
-            color: "#fff"
-          },
-          splitNumber: 8,
-          axisLine: {
-            lineStyle: {
-              color: color.linearYtoG,
-              opacity: 0.6
-            }
-          },
-          splitLine: {
-            lineStyle: {
-              color: color.linearYtoG,
-              opacity: 0.6
-            }
-          },
-          splitArea: {
-            areaStyle: {
-              color: "#fff",
-              opacity: 0.1,
-              shadowBlur: 25,
-              shadowColor: "#000",
-              shadowOffsetX: 0,
-              shadowOffsetY: 5
-            }
-          },
-          indicator: [
-            {
-              name: "服务态度",
-              max: maxData
-            },
-            {
-              name: "产品质量",
-              max: 10
-            },
-            {
-              name: "任务效率",
-              max: 12
-            },
-            {
-              name: "售后保障",
-              max: 3.5
-            }
-          ]
+          trigger: "axis",
+          backgroundColor: "rgba(255,255,255,0.1)",
+          formatter: function(params) {
+            let result = params[0].name + '<br/>';
+            params.forEach(p => {
+              result += p.marker + p.seriesName + ': ' + p.value + '万元<br/>';
+            });
+            return result;
+          }
         },
         grid: {
           left: 90,
           right: 80,
           bottom: 40,
-          top: "60%"
+          top: "30%"
         },
         xAxis: {
           type: "category",
@@ -236,24 +133,19 @@ export default {
             color: "rgba(255,255,255,.8)",
             fontSize: 12
           },
-          data: weekCategory
+          data: years
         },
-        // 下方Y轴
         yAxis: {
-          name: "工单",
+          name: "万元",
           nameLocation: "end",
           nameGap: 24,
           nameTextStyle: {
             color: "rgba(255,255,255,.5)",
             fontSize: 14
           },
-          max: maxData,
           splitNumber: 4,
-
           axisLine: {
-            lineStyle: {
-              opacity: 0
-            }
+            lineStyle: { opacity: 0 }
           },
           splitLine: {
             show: true,
@@ -269,70 +161,13 @@ export default {
         },
         series: [
           {
-            name: "",
-            type: "radar",
-            symbolSize: 0,
-            data: [
-              {
-                value: radarDataAvg[6],
-                name: "平均指标",
-                itemStyle: {
-                  normal: {
-                    color: "#f8d351"
-                  }
-                },
-                lineStyle: {
-                  normal: {
-                    opacity: 0
-                  }
-                },
-                areaStyle: {
-                  normal: {
-                    color: "#f8d351",
-                    shadowBlur: 25,
-                    shadowColor: "rgba(248,211,81,.3)",
-                    shadowOffsetX: 0,
-                    shadowOffsetY: -10,
-                    opacity: 1
-                  }
-                }
-              },
-              {
-                value: radarData[6],
-                name: "我的指标",
-                itemStyle: {
-                  normal: {
-                    color: "#43dfa2"
-                  }
-                },
-                lineStyle: {
-                  normal: {
-                    opacity: 0
-                  }
-                },
-                areaStyle: {
-                  normal: {
-                    color: color.linearGtoB,
-                    shadowBlur: 15,
-                    shadowColor: "rgba(0,0,0,.2)",
-                    shadowOffsetX: 0,
-                    shadowOffsetY: 5,
-                    opacity: 0.8
-                  }
-                }
-              }
-            ]
-          },
-          {
-            name: "",
+            name: "回款",
             type: "line",
             smooth: true,
             symbol: "emptyCircle",
             symbolSize: 8,
             itemStyle: {
-              normal: {
-                color: "#fff"
-              }
+              normal: { color: "#fff" }
             },
             lineStyle: {
               normal: {
@@ -341,62 +176,53 @@ export default {
               }
             },
             areaStyle: {
-              normal: {
-                color: color.areaBtoG
-              }
+              normal: { color: color.areaBtoG }
             },
-            data: weekLineData,
-            lineSmooth: true,
-            markLine: {
-              silent: true,
-              data: [
-                {
-                  type: "average",
-                  name: "平均值"
-                }
-              ],
-              precision: 0,
-              label: {
-                normal: {
-                  formatter: "平均值: \n {c}"
-                }
-              },
-              lineStyle: {
-                normal: {
-                  color: "rgba(248,211,81,.7)"
-                }
-              }
-            },
-            tooltip: {
-              position: "top",
-              formatter: "{c} m",
-              backgroundColor: "rgba(28,152,232,.2)",
-              padding: 6
-            }
+            data: collection
           },
           {
-            name: "占位背景",
-            type: "bar",
+            name: "付款",
+            type: "line",
+            smooth: true,
+            symbol: "emptyCircle",
+            symbolSize: 8,
             itemStyle: {
+              normal: { color: "#f8d351" }
+            },
+            lineStyle: {
               normal: {
-                show: true,
-                color: "#000",
-                opacity: 0
+                color: "#f8d351",
+                width: 3
               }
             },
-            silent: true,
-            barWidth: "50%",
-            data: weekMaxData,
-            animation: false
+            areaStyle: {
+              normal: { color: color.areaGtoY }
+            },
+            data: payment
           },
-          
+          {
+            name: "毛利",
+            type: "line",
+            smooth: true,
+            symbol: "emptyCircle",
+            symbolSize: 8,
+            itemStyle: {
+              normal: { color: "#ff6b6b" }
+            },
+            lineStyle: {
+              normal: {
+                color: "#ff6b6b",
+                width: 2,
+                type: "dashed"
+              }
+            },
+            data: profit
+          }
         ]
       };
 
-      myChartPieLeft.setOption(option);
-      // -----------------------------------------------------------------
-      // 响应式变化
-      window.addEventListener("resize", () => myChartPieLeft.resize(), false);
+      myChart.setOption(option);
+      window.addEventListener("resize", () => myChart.resize(), false);
     }
   },
   destroyed() {

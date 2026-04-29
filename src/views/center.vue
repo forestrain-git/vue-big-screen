@@ -13,16 +13,16 @@
         <span style="color:#5cd9e8">
           <icon name="align-left"></icon>
         </span>
-        <span class="fs-xl text mx-2 mb-1">年度负责人组件达标榜</span>
+        <span class="fs-xl text mx-2 mb-1">板块累计收入排行</span>
         <dv-scroll-ranking-board :config="ranking" style="height:220px" />
       </div>
       <div class="percent">
         <div class="item  bg-color-black">
-          <span>今日任务通过率</span>
+          <span>累计毛利率</span>
           <centerChart1 />
         </div>
         <div class="item  bg-color-black">
-          <span>今日任务达标率</span>
+          <span>回款率</span>
           <centerChart2 />
         </div>
         <div class="water">
@@ -36,101 +36,72 @@
 <script>
 import centerChart1 from "@/components/echart/center/centerChart1";
 import centerChart2 from "@/components/echart/center/centerChart2";
+import { totalCumulative, segmentCumulative } from "@/data/financialData";
 
 export default {
   data() {
     return {
       titleItem: [
         {
-          title: "今年累计任务建次数",
+          title: "累计收入(万元)",
           number: {
-            number: [120],
-            toFixed: 1,
+            number: [totalCumulative.revenue],
+            toFixed: 0,
             content: "{nt}"
           }
         },
         {
-          title: "本月累计任务次数",
+          title: "累计成本(万元)",
           number: {
-            number: [18],
-            toFixed: 1,
+            number: [totalCumulative.cost],
+            toFixed: 0,
             content: "{nt}"
           }
         },
         {
-          title: "今日累计任务次数",
+          title: "累计毛利(万元)",
           number: {
-            number: [2],
-            toFixed: 1,
+            number: [totalCumulative.profit],
+            toFixed: 0,
             content: "{nt}"
           }
         },
         {
-          title: "今年失败任务次数",
+          title: "累计回款(万元)",
           number: {
-            number: [14],
-            toFixed: 1,
+            number: [totalCumulative.collection],
+            toFixed: 0,
             content: "{nt}"
           }
         },
         {
-          title: "今年成功任务次数",
+          title: "累计付款(万元)",
           number: {
-            number: [106],
-            toFixed: 1,
+            number: [totalCumulative.payment],
+            toFixed: 0,
             content: "{nt}"
           }
         },
         {
-          title: "今年达标任务个数",
+          title: "综合毛利率",
           number: {
-            number: [100],
+            number: [totalCumulative.margin],
             toFixed: 1,
-            content: "{nt}"
+            content: "{nt}%"
           }
         }
       ],
       ranking: {
-        data: [
-          {
-            name: "周口",
-            value: 55
-          },
-          {
-            name: "南阳",
-            value: 120
-          },
-          {
-            name: "西峡",
-            value: 78
-          },
-          {
-            name: "驻马店",
-            value: 66
-          },
-          {
-            name: "新乡",
-            value: 80
-          },
-          {
-            name: "新乡",
-            value: 80
-          },
-          {
-            name: "新乡",
-            value: 80
-          },
-          {
-            name: "新乡",
-            value: 80
-          }
-        ],
+        data: Object.keys(segmentCumulative).map(seg => ({
+          name: seg,
+          value: Math.round(segmentCumulative[seg].revenue)
+        })),
         waitTime: 4000,
         carousel: "page",
-        unit: "份"
+        unit: "万元"
       },
       water: {
-        data: [24, 45],
+        data: [Math.round(totalCumulative.margin)],
         shape: 'roundRect',
         formatter:'{value}%',
         waveNum:3

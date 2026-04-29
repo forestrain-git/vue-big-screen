@@ -6,37 +6,35 @@
 
 <script>
 const echarts = require("echarts");
+import { getYears, getRevenueArray, getCostArray } from "@/data/financialData";
+
 export default {
   data() {
     return {};
   },
   mounted() {
-    this.drawPie();
+    setTimeout(() => this.drawChart(), 1000);
   },
   methods: {
-    drawPie(sidebar) {
-      // 基于准备好的dom，初始化echarts实例
-      let myChartPieLeft = echarts.init(
+    drawChart(sidebar) {
+      let myChart = echarts.init(
         document.getElementById("centreLeft2Chart")
       );
-      //  ----------------------------------------------------------------
+
+      const years = getYears();
+      const revenue = getRevenueArray();
+      const cost = getCostArray();
+
+      const colors = [
+        "#f54d4d", "#f87544", "#ffae00", "#dcff00",
+        "#25d053", "#01fff5", "#007cff"
+      ];
 
       let option = {
         angleAxis: {
           interval: 1,
           type: "category",
-          data: [
-            "there1",
-            "there2",
-            "there3",
-            "there4",
-            "there5",
-            "there6",
-            "there7",
-            "there8",
-            "there9",
-            "there10 "
-          ],
+          data: years.map(y => y + "年"),
           z: 10,
           axisLine: {
             show: true,
@@ -51,13 +49,13 @@ export default {
             show: true,
             color: "#00c7ff",
             margin: 8,
-            fontSize: 12
+            fontSize: 11
           }
         },
         radiusAxis: {
           min: 0,
-          max: 100,
-          interval: 20,
+          max: 30000,
+          interval: 6000,
           axisLine: {
             show: true,
             lineStyle: {
@@ -67,7 +65,7 @@ export default {
             }
           },
           axisLabel: {
-            formatter: "{value} %",
+            formatter: "{value}",
             show: false,
             padding: [0, 0, 20, 0],
             color: "#00c7ff",
@@ -94,107 +92,44 @@ export default {
             fontSize: 12,
             fontWeight: 0
           },
-          data: ["A"]
+          data: ["收入", "成本"]
         },
         polar: {},
         series: [
           {
-            name: "A",
+            name: "收入",
             type: "bar",
             radius: ["20%", "100%"],
-            data: [
-              {
-                value: 87,
-                itemStyle: {
-                  normal: {
-                    color: "#f54d4d"
-                  }
-                }
-              },
-              {
-                value: 80,
-                itemStyle: {
-                  normal: {
-                    color: "#f87544"
-                  }
-                }
-              },
-              {
-                value: 75,
-                itemStyle: {
-                  normal: {
-                    color: "#ffae00"
-                  }
-                }
-              },
-              {
-                value: 69,
-                itemStyle: {
-                  normal: {
-                    color: "#dcff00"
-                  }
-                }
-              },
-              {
-                value: 63,
-                itemStyle: {
-                  normal: {
-                    color: "#25d053"
-                  }
-                }
-              },
-              {
-                value: 54,
-                itemStyle: {
-                  normal: {
-                    color: "#01fff5"
-                  }
-                }
-              },
-              {
-                value: 47,
-                itemStyle: {
-                  normal: {
-                    color: "#007cff"
-                  }
-                }
-              },
-              {
-                value: 40,
-                itemStyle: {
-                  normal: {
-                    color: "#4245ff"
-                  }
-                }
-              },
-              {
-                value: 35,
-                itemStyle: {
-                  normal: {
-                    color: "#c32eff"
-                  }
-                }
-              },
-              {
-                value: 33,
-                itemStyle: {
-                  normal: {
-                    color: "#ff62e8"
-                  }
+            data: revenue.map((val, i) => ({
+              value: Math.round(val),
+              itemStyle: {
+                normal: {
+                  color: colors[i % colors.length]
                 }
               }
-            ],
+            })),
+            coordinateSystem: "polar"
+          },
+          {
+            name: "成本",
+            type: "bar",
+            radius: ["20%", "100%"],
+            data: cost.map((val) => ({
+              value: Math.round(val),
+              itemStyle: {
+                normal: {
+                  color: "rgba(255,255,255,0.3)"
+                }
+              }
+            })),
             coordinateSystem: "polar"
           }
         ]
       };
-      myChartPieLeft.setOption(option);
-      // -----------------------------------------------------------------
-      // 响应式变化
-      window.addEventListener("resize", () => myChartPieLeft.resize(), false);
-      //侧边栏变化
+      myChart.setOption(option);
+      window.addEventListener("resize", () => myChart.resize(), false);
       if (sidebar) {
-        myChartPieLeft.resize();
+        myChart.resize();
       }
     }
   },
